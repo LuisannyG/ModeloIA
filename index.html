@@ -10,15 +10,23 @@
         body {
             font-family: 'Poppins', sans-serif;
             text-align: center;
-            margin: 20px;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background-image: url('https://ruta-de-tu-imagen/image.png'); /* Cambia esta URL */
+            background-repeat: repeat; /* Repetir la imagen como un mosaico */
+            background-size: auto; /* Dejar que el tamaño sea el original */
+            background-position: top left; /* Iniciar el mosaico desde la esquina superior izquierda */
         }
         h1 {
-            color: #007bff; /* Título en azul */
+            color: #ffffff; /* Título en blanco para mayor contraste */
             font-weight: 600;
+            margin-top: 20px;
         }
         p {
             font-size: 18px;
             line-height: 1.5;
+            color: #ffffff; /* Texto en blanco */
         }
         .highlight {
             color: #28a745; /* Verde para texto positivo */
@@ -40,7 +48,7 @@
     <h1>Detección de Emociones en Activaciones BTL</h1>
     <p>Esta página web está diseñada para identificar las emociones de las personas durante activaciones BTL,</p>
     <p>para conocer cómo se sienten respecto al producto o servicio presentado.</p>
-    <p class="purple-text">Por favor recarga la página para un nuevo análisis.</p>
+    <p class="purple-text">Por favor, recarga la página para hacer un nuevo análisis.</p>
 
     <h3>Elige una opción:</h3>
     <button onclick="initWebcam()">Usar Cámara</button>
