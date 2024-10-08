@@ -4,11 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detección de Emociones en Activaciones BTL</title>
+    <!-- Importar Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
             text-align: center;
             margin: 20px;
+        }
+        h1 {
+            color: #007bff; /* Título en azul */
+            font-weight: 600;
+        }
+        p {
+            font-size: 18px;
+            line-height: 1.5;
+        }
+        .highlight {
+            color: #28a745; /* Verde para texto positivo */
+        }
+        .negative {
+            color: #dc3545; /* Rojo para texto negativo */
         }
         video, canvas, img {
             margin-top: 20px;
@@ -18,14 +34,13 @@
     </style>
 </head>
 <body>
-    <h1>Detección de emociones en activaciones BTL</h1>
-    <p>Esta página web está diseñada para identificar las emociones de las personas durante activaciones BTL, para conocer cómo se sienten respecto al producto o servicio presentado Por favor, recarga el modelo después de cada impresión.</p>
+    <h1>Detección de Emociones en Activaciones BTL</h1>
+    <p>Esta página web está diseñada para identificar las emociones de las personas durante activaciones BTL,</p>
+    <p>para conocer cómo se sienten respecto al producto o servicio presentado.</p>
 
     <h3>Elige una opción:</h3>
     <button onclick="initWebcam()">Usar Cámara</button>
     <input type="file" id="imageUpload" accept="image/*" onchange="loadImage(event)">
-    <br><br>
-    <button onclick="resetModel()">Reiniciar</button>
 
     <div id="webcam-container" style="display:none;">
         <video id="webcam" autoplay playsinline width="640" height="480"></video>
@@ -64,14 +79,12 @@
             }
         }
 
-        // Reiniciar el modelo y la interfaz
-        function resetModel() {
-            clearResults(); // Limpiar resultados anteriores
+        // Reiniciar el contenedor de resultados y webcam cuando cambies de modo
+        function reset() {
+            clearResults(); // Limpiar los resultados
             stopWebcam(); // Detener la cámara si está en uso
             document.getElementById('image-container').style.display = 'none';
             document.getElementById('webcam-container').style.display = 'none';
-            document.getElementById('imageUpload').value = ''; // Limpiar el input de la imagen
-            init(); // Volver a cargar el modelo
         }
 
         // Detener la webcam
@@ -83,7 +96,7 @@
 
         // Usar la webcam
         async function initWebcam() {
-            resetModel(); // Limpiar todo antes de iniciar la webcam
+            reset(); // Limpiar todo antes de iniciar la webcam
 
             document.getElementById('webcam-container').style.display = 'block';
 
@@ -104,7 +117,7 @@
 
         // Cargar y predecir la imagen subida
         function loadImage(event) {
-            resetModel(); // Limpiar todo antes de cargar la nueva imagen
+            reset(); // Limpiar todo antes de cargar la nueva imagen
 
             const image = document.getElementById('uploadedImage');
             const reader = new FileReader();
@@ -131,9 +144,15 @@
             const prediction = await model.predict(input);
             clearResults(); // Limpiar los resultados previos
             for (let i = 0; i < maxPredictions; i++) {
-                const classPrediction =
-                    prediction[i].className + ": " + (prediction[i].probability * 100).toFixed(2) + "%";
-                labelContainer.childNodes[i].innerHTML = classPrediction;
+                const classPrediction = prediction[i].className + ": " + (prediction[i].probability * 100).toFixed(2) + "%";
+                // Colorear "positivo" en verde y "negativo" en rojo
+                if (prediction[i].className.toLowerCase().includes('positivo')) {
+                    labelContainer.childNodes[i].innerHTML = `<span class="highlight">${classPrediction}</span>`;
+                } else if (prediction[i].className.toLowerCase().includes('negativo')) {
+                    labelContainer.childNodes[i].innerHTML = `<span class="negative">${classPrediction}</span>`;
+                } else {
+                    labelContainer.childNodes[i].innerHTML = classPrediction;
+                }
             }
         }
 
@@ -150,3 +169,4 @@
     </script>
 </body>
 </html>
+
