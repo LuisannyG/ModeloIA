@@ -68,6 +68,7 @@
         async function initWebcam() {
             document.getElementById('webcam-container').style.display = 'block';
             document.getElementById('image-container').style.display = 'none';
+            clearResults(); // Limpiar resultados anteriores
 
             const flip = true; // Voltear la imagen
             webcam = new tmImage.Webcam(640, 480, flip);
@@ -93,6 +94,7 @@
                 image.src = reader.result;
                 document.getElementById('image-container').style.display = 'block';
                 document.getElementById('webcam-container').style.display = 'none';
+                clearResults(); // Limpiar resultados anteriores
                 predictImage(image);
             };
 
@@ -114,6 +116,14 @@
                 const classPrediction =
                     prediction[i].className + ": " + (prediction[i].probability * 100).toFixed(2) + "%";
                 labelContainer.childNodes[i].innerHTML = classPrediction;
+            }
+        }
+
+        // Función para limpiar los resultados anteriores
+        function clearResults() {
+            labelContainer.innerHTML = ''; // Elimina el contenido del contenedor de etiquetas
+            for (let i = 0; i < maxPredictions; i++) {
+                labelContainer.appendChild(document.createElement("div"));
             }
         }
 
