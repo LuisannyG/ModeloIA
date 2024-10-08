@@ -42,14 +42,12 @@
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
 
     <script type="text/javascript">
-        // Enlace al modelo exportado
         const URL = "./my_model/";
 
         let model, webcam, labelContainer, maxPredictions;
         let canvas = document.getElementById('canvas');
         let ctx = canvas.getContext('2d');
 
-        // Inicializar el modelo y la webcam
         async function init() {
             const modelURL = URL + "model.json";
             const metadataURL = URL + "metadata.json";
@@ -64,11 +62,26 @@
             }
         }
 
+        // Reiniciar el contenedor de resultados y webcam cuando cambies de modo
+        function reset() {
+            clearResults(); // Limpiar los resultados
+            stopWebcam(); // Detener la cámara si está en uso
+            document.getElementById('image-container').style.display = 'none';
+            document.getElementById('webcam-container').style.display = 'none';
+        }
+
+        // Detener la webcam
+        function stopWebcam() {
+            if (webcam && webcam.stop) {
+                webcam.stop();
+            }
+        }
+
         // Usar la webcam
         async function initWebcam() {
+            reset(); // Limpiar todo antes de iniciar la webcam
+
             document.getElementById('webcam-container').style.display = 'block';
-            document.getElementById('image-container').style.display = 'none';
-            clearResults(); // Limpiar resultados anteriores
 
             const flip = true; // Voltear la imagen
             webcam = new tmImage.Webcam(640, 480, flip);
@@ -87,14 +100,14 @@
 
         // Cargar y predecir la imagen subida
         function loadImage(event) {
+            reset(); // Limpiar todo antes de cargar la nueva imagen
+
             const image = document.getElementById('uploadedImage');
             const reader = new FileReader();
 
             reader.onload = function () {
                 image.src = reader.result;
                 document.getElementById('image-container').style.display = 'block';
-                document.getElementById('webcam-container').style.display = 'none';
-                clearResults(); // Limpiar resultados anteriores
                 predictImage(image);
             };
 
@@ -112,6 +125,7 @@
         // Predicción de emociones
         async function predict(input) {
             const prediction = await model.predict(input);
+            clearResults(); // Limpiar los resultados previos
             for (let i = 0; i < maxPredictions; i++) {
                 const classPrediction =
                     prediction[i].className + ": " + (prediction[i].probability * 100).toFixed(2) + "%";
@@ -119,9 +133,9 @@
             }
         }
 
-        // Función para limpiar los resultados anteriores
+        // Limpiar los resultados
         function clearResults() {
-            labelContainer.innerHTML = ''; // Elimina el contenido del contenedor de etiquetas
+            labelContainer.innerHTML = ''; // Limpiar el contenido del contenedor de etiquetas
             for (let i = 0; i < maxPredictions; i++) {
                 labelContainer.appendChild(document.createElement("div"));
             }
