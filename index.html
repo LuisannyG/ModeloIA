@@ -18,12 +18,14 @@
     </style>
 </head>
 <body>
-    <h1>Detección de Emociones en Activaciones BTL</h1>
-    <p>Esta página web está diseñada para identificar las emociones de las personas durante activaciones BTL, para conocer cómo se sienten respecto al producto o servicio presentado.</p>
+    <h1>Detección de emociones en activaciones BTL</h1>
+    <p>Esta página web está diseñada para identificar las emociones de las personas durante activaciones BTL, para conocer cómo se sienten respecto al producto o servicio presentado Por favor, recarga el modelo después de cada impresión.</p>
 
     <h3>Elige una opción:</h3>
     <button onclick="initWebcam()">Usar Cámara</button>
     <input type="file" id="imageUpload" accept="image/*" onchange="loadImage(event)">
+    <br><br>
+    <button onclick="resetModel()">Reiniciar</button>
 
     <div id="webcam-container" style="display:none;">
         <video id="webcam" autoplay playsinline width="640" height="480"></video>
@@ -62,12 +64,14 @@
             }
         }
 
-        // Reiniciar el contenedor de resultados y webcam cuando cambies de modo
-        function reset() {
-            clearResults(); // Limpiar los resultados
+        // Reiniciar el modelo y la interfaz
+        function resetModel() {
+            clearResults(); // Limpiar resultados anteriores
             stopWebcam(); // Detener la cámara si está en uso
             document.getElementById('image-container').style.display = 'none';
             document.getElementById('webcam-container').style.display = 'none';
+            document.getElementById('imageUpload').value = ''; // Limpiar el input de la imagen
+            init(); // Volver a cargar el modelo
         }
 
         // Detener la webcam
@@ -79,7 +83,7 @@
 
         // Usar la webcam
         async function initWebcam() {
-            reset(); // Limpiar todo antes de iniciar la webcam
+            resetModel(); // Limpiar todo antes de iniciar la webcam
 
             document.getElementById('webcam-container').style.display = 'block';
 
@@ -100,7 +104,7 @@
 
         // Cargar y predecir la imagen subida
         function loadImage(event) {
-            reset(); // Limpiar todo antes de cargar la nueva imagen
+            resetModel(); // Limpiar todo antes de cargar la nueva imagen
 
             const image = document.getElementById('uploadedImage');
             const reader = new FileReader();
