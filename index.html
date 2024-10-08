@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detección de Emociones en Activaciones BTL</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        video, canvas, img {
+            margin-top: 20px;
+            max-width: 100%;
+            width: 400px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Detección de Emociones en Activaciones BTL</h1>
+    <p>Esta página web está diseñada para identificar las emociones de las personas durante activaciones BTL, para conocer cómo se sienten respecto al producto o servicio presentado.</p>
+
+    <h3>Elige una opción:</h3>
+    <button onclick="initWebcam()">Usar Cámara</button>
+    <input type="file" id="imageUpload" accept="image/*" onchange="loadImage(event)">
+
+    <div id="webcam-container" style="display:none;">
+        <video id="webcam" autoplay playsinline width="640" height="480"></video>
+        <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+    </div>
+    
+    <div id="image-container" style="display:none;">
+        <img id="uploadedImage" width="640" height="480" alt="Imagen subida">
+        <canvas id="canvasImage" width="640" height="480" style="display:none;"></canvas>
+    </div>
+
+    <div id="label-container"></div>
+
+    <!-- Importar TensorFlow.js y la librería de Teachable Machine -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+
+    <script type="text/javascript">
+        // Enlace al modelo exportado
+        const URL = "./my_model/";
+
+        let model, webcam, labelContainer, maxPredictions;
+        let canvas = document.getElementById('canvas');
+        let ctx = canvas.getContext('2d');
+
+        // Inicializar el modelo y la webcam
+        async function init() {
+            const modelURL = URL + "model.json";
+            const metadataURL = URL + "metadata.json";
+
+            // Cargar el modelo y los metadatos
+            model = await tmImage.load(modelURL, metadataURL);
+            maxPredictions = model.getTotalClasses();
+
+            labelContainer = document.getElementById("label-container");
+            for (let i = 0; i < maxPredictions; i++) {
+                labelContainer.appendChild(document.createElement("div"));
+            }
+        }
+
+        // Usar la webcam
+        async function initWebcam() {
+            document.getElementById('webcam-container').style.display = 'block';
+            document.getElementById('image-container').style.display = 'none';
+
+            const flip = true; // Voltear la imagen
+            webcam = new tmImage.Webcam(640, 480, flip);
+            await webcam.setup();
+            await webcam.play();
+            window.requestAnimationFrame(loop);
+
+            document.getElementById('webcam-container').appendChild(webcam.canvas);
+        }
+
+        async function loop() {
+            webcam.update();
+            await predict(webcam.canvas);
+            window.requestAnimationFrame(loop);
+        }
+
+        // Cargar y predecir la imagen subida
+        function loadImage(event) {
+            const image = document.getElementById('uploadedImage');
+            const reader = new FileReader();
+
+            reader.onload = function () {
+                image.src = reader.result;
+                document.getElementById('image-container').style.display = 'block';
+                document.getElementById('webcam-container').style.display = 'none';
+                predictImage(image);
+            };
+
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        async function predictImage(image) {
+            canvas = document.getElementById('canvasImage');
+            ctx = canvas.getContext('2d');
+            ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+            await predict(canvas);
+        }
+
+        // Predicción de emociones
+        async function predict(input) {
+            const prediction = await model.predict(input);
+            for (let i = 0; i < maxPredictions; i++) {
+                const classPrediction =
+                    prediction[i].className + ": " + (prediction[i].probability * 100).toFixed(2) + "%";
+                labelContainer.childNodes[i].innerHTML = classPrediction;
+            }
+        }
+
+        // Inicializar modelo al cargar la página
+        window.onload = init;
+    </script>
+</body>
+</html>
